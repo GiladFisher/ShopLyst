@@ -2,6 +2,7 @@ from transformers import pipeline # MIT License (MIT)
 import json
 import requests
 import torch
+from sentence_transformers import SentenceTransformer, util
 print(torch.cuda.is_available())
 device = torch.device('cuda')
 # print("CUDA available:", torch.cuda.is_available())
@@ -130,27 +131,29 @@ shopping_list = [
 
 # Categories to classify items into
 categories = [
-    "Produce products (fruits, vegetables, apples, bananas, carrots, leafy greens)",  # Fruits and vegetables
-    "Dairy products (milk, cheese, yogurt, butter, eggs)",                          # Milk, cheese, yogurt, butter, eggs
-    "Bakery products (bread, pastries, cakes, muffins, cookies)",                    # Bread, pastries, cakes, etc.
+    "Fruits & Vegetables products (onions, apples, potatos, banana, )",  # Fruits and vegetables "#
+    "Dairy products (milk, cheese, yogurt, butter, eggs, gauda, parmesan, cotage)",                          # Milk, cheese, yogurt, butter, eggs
+    "Bakery products (bread, pastries, cakes, muffins, cookies, buns, pitahs, flatbread)",                    # Bread, pastries, cakes, etc.
     "Meat products (beef, chicken, pork, lamb, sausages)",                           # Fresh and packaged meats
-    "Seafood products (fish, shellfish, shrimp, lobster, crab)",                      # Fresh and frozen fish and shellfish
+    "Seafood products (fish, shellfish, shrimp, lobster, crab, salmon)",                      # Fresh and frozen fish and shellfish
     "Frozen Foods products (frozen vegetables, ice cream, frozen meals, frozen fruit)",  # Frozen meals, vegetables, ice cream
-    "Pantry products (canned goods, pasta, rice, beans, flour, sugar, spices)",       # Canned goods, pasta, rice, dry staples
+    "Pantry products (canned goods, pasta, rice, beans, flour, sugar)",       # Canned goods, pasta, rice, dry staples
     "Snacks products (chips, cookies, crackers, candy, nuts, granola bars)",          # Chips, cookies, crackers, etc.
     "Beverages products (soda, juice, bottled water, alcoholic drinks, tea, coffee)",  # Soda, juice, bottled water, alcoholic drinks
     "Health & Beauty products (shampoo, soap, deodorant, toothpaste, makeup, lotion)",  # Personal care products like shampoo, soap, makeup
     "Baby Products (baby food, diapers, wipes, baby formula, baby wipes)",  # Baby food, diapers, wipes, etc.
     "Pet Supplies products (dog food, cat food, pet toys)",  # Pet food, toys, grooming products
-    "Pharmacy products (over-the-counter medicine, prescriptions, vitamins, pain relievers)",  # Over-the-counter medicine, prescriptions
-    "Spices & Seasonings products (salt, pepper, herbs, mustard, hot sauce, ketchup)",  # Herbs, spices, condiments
-    "Prepared Foods products (pre-made meals, deli items, rotisserie chicken, salads)",  # Deli items, pre-made salads, ready-to-eat food
-    "Electronics products (batteries, small appliances, light bulbs, headphones, seasonal items)",  # Batteries, small appliances, seasonal items
+    "Pharmacy products (over-the-counter medicine, prescriptions, vitamins, pain relievers, sunscreen)",  # Over-the-counter medicine, prescriptions
+    "Spices & Seasonings products (salt, pepper, herbs, paprika)",  # Herbs, spices, condiments
+    #"Prepared Foods products (pre-made meals, deli items, rotisserie chicken, salads)",  # Deli items, pre-made salads, ready-to-eat food
+    "Electronics products (batteries, small appliances, light bulbs, headphones, heater)",  # Batteries, small appliances, seasonal items
     "Laundry Supplies products (detergents, fabric softeners, stain removers)"  # Detergents, fabric softeners, stain removers
 ]
 
 # Classify each item
 output = {}
+
+
 
 # Classify each item and store results
 for item in shopping_list_esp:
