@@ -5,8 +5,12 @@ import ListItem from "./ListItem";
 
  function List(props){
     const [listItems, setListItems] = React.useState([]);
+    function deleteItem(itemId){
+        setListItems(prevItems => {
+            return prevItems.filter(item => {return item.id !== itemId;});
+        });
+    }
     function addItem(newItem){
-        alert("New item added " + newItem.title);
         setListItems(prevItems => {
             return [...prevItems, newItem];
         });
@@ -14,7 +18,7 @@ import ListItem from "./ListItem";
     return(<div>
         <h1>List of Items</h1>
         <CreateItem addItem={addItem} />
-        {listItems.map(item => <ListItem key={item.id} item={item} />)}
+        {listItems.map(item => <ListItem key={item.id} id={item.id}  item={item} deleteItem={deleteItem} />)}
     </div>)
  }
 
