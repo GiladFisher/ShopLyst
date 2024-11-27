@@ -2,11 +2,13 @@ from transformers import pipeline # MIT License (MIT)
 import json
 import requests
 import torch
-print("CUDA available:", torch.cuda.is_available())
+print(torch.cuda.is_available())
+device = torch.device('cuda')
+# print("CUDA available:", torch.cuda.is_available())
 from bidi.algorithm import get_display # LGPL 3.0 license
 from googletrans import Translator
 # Load the zero-shot classification pipeline
-classifier = pipeline("zero-shot-classification", model="facebook/bart-large-mnli")
+classifier = pipeline("zero-shot-classification", model="facebook/bart-large-mnli", device=-1)
 translator = Translator()
 # Example shopping items
 # Function to classify items with exception handling and translation
