@@ -7,10 +7,10 @@ function CreateItem(props){
         description: "",
         id: Date.now()
     });
-    function handleChange(e){
-        setItem({...item, [e.target.name]: e.target.value});
 
-        if (name === "title" && value.trim()) {
+    function handleTitleBlur(e){
+        if (e.target.value.trim() ){
+            const value = e.target.value;
             fetch("http://127.0.0.1:5000/classify", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
@@ -24,6 +24,13 @@ function CreateItem(props){
             })
             .catch(err => console.error("Error fetching category:", err));
         }
+
+    }
+
+    function handleChange(e){
+        setItem({...item, [e.target.name]: e.target.value});
+
+        
     }
     function handleSubmit(e){
         props.addItem(item);
@@ -34,7 +41,7 @@ function CreateItem(props){
         <div>
             <h3>Create New Item</h3>
             <form onSubmit={handleSubmit}>
-                <input type="text" name="title" placeholder="Title" value={item.title} onChange={handleChange} />
+                <input type="text" name="title" placeholder="Title" value={item.title} onChange={handleChange} onBlur={handleTitleBlur} />
                 <input type="text" name="category" placeholder="Category" value={item.category} onChange={handleChange} />
                 <textarea name="description" placeholder="Description" value={item.description} onChange={handleChange} />
                 <button type="submit">Add Item</button>

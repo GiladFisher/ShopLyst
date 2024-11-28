@@ -1,8 +1,10 @@
 from transformers import pipeline # MIT License (MIT)
 import json
+from flask_cors import cross_origin
 from flask import Flask, request, jsonify
 from flask_caching import Cache
 import torch
+import os
 from sentence_transformers import SentenceTransformer, util
 print(torch.cuda.is_available())
 device = torch.device('cuda')
@@ -17,7 +19,7 @@ app = Flask(__name__)
 
 # Setup Flask-Caching to use a file-based cache
 app.config['CACHE_TYPE'] = 'filesystem'
-app.config['CACHE_DIR'] = '/tmp/flask_cache'  # Directory where cache files will be stored
+app.config['CACHE_DIR'] = os.path.join(os.getcwd(), '/data/flask_cache')  # Directory where cache files will be stored
 cache = Cache(app)
 
 
@@ -166,18 +168,34 @@ categories = [
 output = {}
 
 @app.route("/classify", methods=["POST"])
+@cross_origin()  # Enable CORS for this route only
 def classify():
     data = request.json
     title = data.get("title", "")
     if not title:
         return jsonify({"error": "Title is missing"}), 400
     print(f"Original title recieved: {get_display(title)}")
-    category = classify_item(title, classifier, categories, translator)
+    # Check if the title is cached
+    cached_result = cache.get(title)
+    if cached_result:
+        print(f"Cache hit for: {title}")
+        # Increment hit count
+        cached_result['hit_count'] += 1
+        cache.set(title, cached_result)  # Update the cache with the new hit count
+        category = cached_result['category']
+    
+    else:
+        category = classify_item(title, classifier, categories, translator)
+        cache.set(title, {'category': category, 'hit_count': 1})
+        print(f"Cache set for: {get_display(title)} -> {category}")
+
     return jsonify({"category": category})
 
  
 # 
 if __name__ == "__main__":
+    if not os.path.exists('/data/flask_cache'):
+        os.makedirs('/data/flask_cache')
     app.run(debug=True)
 
 
