@@ -1,6 +1,7 @@
 from transformers import pipeline # MIT License (MIT)
 import json
-import requests
+from flask import Flask, request, jsonify
+from flask_caching import Cache
 import torch
 from sentence_transformers import SentenceTransformer, util
 print(torch.cuda.is_available())
@@ -12,6 +13,17 @@ from googletrans import Translator
 classifier = pipeline("zero-shot-classification", model="facebook/bart-large-mnli", device=-1)
 translator = Translator()
 # Example shopping items
+app = Flask(__name__)
+
+# Setup Flask-Caching to use a file-based cache
+app.config['CACHE_TYPE'] = 'filesystem'
+app.config['CACHE_DIR'] = '/tmp/flask_cache'  # Directory where cache files will be stored
+cache = Cache(app)
+
+
+
+
+
 # Function to classify items with exception handling and translation
 def classify_item(item, classifier, categories, translator):
     # Translate the item to English (if necessary)
@@ -153,13 +165,28 @@ categories = [
 # Classify each item
 output = {}
 
+@app.route("/classify", methods=["POST"])
+def classify():
+    data = request.json
+    title = data.get("title", "")
+    if not title:
+        return jsonify({"error": "Title is missing"}), 400
+    print(f"Original title recieved: {get_display(title)}")
+    category = classify_item(title, classifier, categories, translator)
+    return jsonify({"category": category})
+
+ 
+# 
+if __name__ == "__main__":
+    app.run(debug=True)
 
 
-# Classify each item and store results
-for item in shopping_list_esp:
-    category = classify_item(item, classifier, categories, translator)
-    output[item] = category
-    print(f"{get_display(item)} -> {category}")
+
+# # Classify each item and store results
+# for item in shopping_list_esp:
+#     category = classify_item(item, classifier, categories, translator)
+#     output[item] = category
+#     print(f"{get_display(item)} -> {category}")
 
 # # Convert the output to JSON format
 # output_json = json.dumps(output, indent=4)
