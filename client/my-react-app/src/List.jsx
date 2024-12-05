@@ -16,7 +16,7 @@ import ListItem from "./ListItem";
         });
     }
     return(<div>
-        <h1>List of Items</h1>
+        <h1>{props.user.name}'s List</h1>
         <CreateItem addItem={addItem} />
         {listItems.map(item => <ListItem key={item.id} id={item.id}  item={item} deleteItem={deleteItem} />)}
     </div>)

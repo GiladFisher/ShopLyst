@@ -1,35 +1,64 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import React, { useState, useEffect } from 'react';
+import { jwtDecode } from 'jwt-decode';
+import { jwtVerify } from 'jose';
+import List from './List';
 
-function App() {
-  const [count, setCount] = useState(0)
+const App = () => {
+  const [user, setUser] = useState(null);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    // Load the Google Identity Services script
+    const script = document.createElement('script');
+    script.src = 'https://accounts.google.com/gsi/client';
+    script.async = true;
+    script.defer = true;
+    script.onload = () => {
+      google.accounts.id.initialize({
+        client_id: '1038048702929-fa3fsb8ss4u2mq7nkjpai7l866aibgli.apps.googleusercontent.com',
+        callback: handleCredentialResponse,
+      });
+      google.accounts.id.renderButton(
+        document.getElementById('g_id_signin'),
+        {
+          theme: 'outline',
+          size: 'large',
+          text: 'signin_with',
+        }
+      );
+    };
+    document.body.appendChild(script);
+  }, []);
+
+  // Handle response from Google login
+  const handleCredentialResponse = (response) => {
+    if (response.error) {
+      setError('Login failed');
+      alert('Error occurred during login: ', response.error);
+    } else {
+      // The response.credential contains the JWT token
+      // You can send this token to your backend for verification
+      const token = response.credential;  // JWT token
+    
+      const userData = jwtDecode(response.credential);
+      console.log('User data:', userData);
+      setUser(userData);
+    }
+  };
 
   return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.jsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
-}
+    <div>
+      {user ? (
+        <div>
+          <h3>Welcome, {user.name}!</h3>
+          <List user={user} />
+        </div>
+      ) : (
+        <div id="g_id_signin" className="g_id_signin"></div>
+      )}
+      {error && <p>{error}</p>}
+    </div>
+  );
+};
 
-export default App
+export default App;
