@@ -6,6 +6,7 @@ import List from './List';
 const App = () => {
   const [user, setUser] = useState(null);
   const [error, setError] = useState(null);
+  const [signed, setSigned] = useState(false);
 
   useEffect(() => {
     // Load the Google Identity Services script
@@ -43,12 +44,15 @@ const App = () => {
       const userData = jwtDecode(response.credential);
       console.log('User data:', userData);
       setUser(userData);
+      // set div to invisible 
+      // document.getElementById('g_id_signin').hidden = true;
+      setSigned(true); // set div to visible
     }
   };
 
   return (
     <div>
-      {user ? (
+      {signed ? (
         <div>
           <h3>Welcome, {user.name}!</h3>
           <List user={user} />

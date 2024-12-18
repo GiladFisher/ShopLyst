@@ -5,6 +5,8 @@ from flask import Flask, request, jsonify
 from flask_caching import Cache
 import torch
 import os
+import firebase_admin
+from firebase_admin import credentials, db
 from sentence_transformers import SentenceTransformer, util
 print(torch.cuda.is_available())
 device = torch.device('cuda')
@@ -16,6 +18,12 @@ classifier = pipeline("zero-shot-classification", model="facebook/bart-large-mnl
 translator = Translator()
 # Example shopping items
 app = Flask(__name__)
+
+cred = credentials.Certificate("C:/Users/gilad/Documents/GitHub/ShopLyst/server/Python API/shoplyst-584c0-firebase-adminsdk-4ht66-158f67ab1c.json")
+
+firebase_admin.initialize_app(cred, {
+    "databaseURL": "https://shoplyst-584c0-default-rtdb.europe-west1.firebasedatabase.app/"
+})
 
 # Setup Flask-Caching to use a file-based cache
 app.config['CACHE_TYPE'] = 'filesystem'
@@ -176,17 +184,31 @@ def classify():
         return jsonify({"error": "Title is missing"}), 400
     print(f"Original title recieved: {get_display(title)}")
     # Check if the title is cached
-    cached_result = cache.get(title)
+
+    # cached_result = cache.get(title)
+    # if cached_result:
+    #     print(f"Cache hit for: {title}")
+    #     # Increment hit count
+    #     cached_result['hit_count'] += 1
+    #     cache.set(title, cached_result)  # Update the cache with the new hit count
+    #     category = cached_result['category']
+
+    # Check if the title exists in Firebase
+    ref = db.reference(f"cache/{title}")
+    cached_result = ref.get()
+
     if cached_result:
         print(f"Cache hit for: {title}")
         # Increment hit count
         cached_result['hit_count'] += 1
-        cache.set(title, cached_result)  # Update the cache with the new hit count
+        ref.set(cached_result)  # Update the cache with the new hit count
         category = cached_result['category']
     
     else:
         category = classify_item(title, classifier, categories, translator)
-        cache.set(title, {'category': category, 'hit_count': 1})
+        # cache.set(title, {'category': category, 'hit_count': 1})
+        cache_data = {'category': category, 'hit_count': 1}
+        ref.set(cache_data)
         print(f"Cache set for: {get_display(title)} -> {category}")
 
     return jsonify({"category": category})
