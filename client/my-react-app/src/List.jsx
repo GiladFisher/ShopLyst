@@ -23,7 +23,8 @@ import ListItem from "./ListItem";
     return(<div>
         <h1>{props.user.name}'s List</h1>
         <CreateItem addItem={addItem} />
-        {sortedItems.map(item => <ListItem key={item.id} id={item.id}  item={item} deleteItem={deleteItem} />)}
+        <div clsas="list">{sortedItems.map(item => <ListItem key={item.id} id={item.id}  item={item} deleteItem={deleteItem} />)}</div>
+        
     </div>)
  }
 

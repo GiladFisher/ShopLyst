@@ -67,11 +67,44 @@ button:focus-visible {
   }
 }
 .item {
-  background: #fff;
+  background: #eef;
   border-radius: 7px;
-  box-shadow: 0 2px 5px #ccc;
+  box-shadow: 0 2px 5px #77f;
   padding: 10px;
   width: 240px;
   margin: 16px;
   float: left;
+}
+.list{
+  position: relative;
+  top: 20px; /* Moves the element 20px down from its normal position */
+  left: 10px; /* Moves the element 10px to the right */
+  margin: 5px;
+  padding: 5px;
+  background-color: lightblue;
+}
+.page{
+  position: absolute;
+  top: 00%; /* Moves the element's top edge to the middle of the viewport */
+  left: 0%; /* Moves the element's left edge to the middle of the viewport */
+  width: 100%;
+  height: 150%; /* Sets the element to take up the full viewport */
+  margin: 5px;
+  padding: 5px;
+  background-color: lightblue;
+}
+.create_area {
+  max-width: 400px; /* Limit the width of the form */
+  margin: 20px auto; /* Center the form */
+  padding: 20px;
+  border: 1px solid #ccc;
+  border-radius: 10px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  background-color: #f9f9f9;
+  box-shadow: 0 4px 7px #77f;
+}
+
+#additembutton{
+  margin-top: 20px;
+  margin-left: 50px;
 }

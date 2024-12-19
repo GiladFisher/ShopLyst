@@ -51,7 +51,7 @@ const App = () => {
   };
 
   return (
-    <div>
+    <div class="page">
       {signed ? (
         <div>
           <h3>Welcome, {user.name}!</h3>

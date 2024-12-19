@@ -38,13 +38,13 @@ function CreateItem(props){
         e.preventDefault();
     }
     return ( 
-        <div>
+        <div class="create_area">
             <h3>Create New Item</h3>
             <form onSubmit={handleSubmit}>
                 <input type="text" name="title" placeholder="Title" value={item.title} onChange={handleChange} onBlur={handleTitleBlur} />
                 <input type="text" name="category" placeholder="Category" value={item.category} onChange={handleChange} />
                 <textarea name="description" placeholder="Description" value={item.description} onChange={handleChange} />
-                <button type="submit">Add Item</button>
+                <button id="additembutton" type="submit">Add Item</button>
             </form>
         </div>
     )
