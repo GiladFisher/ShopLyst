@@ -6,7 +6,7 @@ from flask_caching import Cache
 import torch
 import os
 import firebase_admin
-from firebase_admin import credentials, db
+from firebase_admin import credentials, db, auth
 from sentence_transformers import SentenceTransformer, util
 print(torch.cuda.is_available())
 device = torch.device('cuda')
@@ -24,15 +24,6 @@ cred = credentials.Certificate("C:/Users/gilad/Documents/GitHub/ShopLyst/server/
 firebase_admin.initialize_app(cred, {
     "databaseURL": "https://shoplyst-584c0-default-rtdb.europe-west1.firebasedatabase.app/"
 })
-
-# Setup Flask-Caching to use a file-based cache
-app.config['CACHE_TYPE'] = 'filesystem'
-app.config['CACHE_DIR'] = os.path.join(os.getcwd(), '/data/flask_cache')  # Directory where cache files will be stored
-cache = Cache(app)
-
-
-
-
 
 # Function to classify items with exception handling and translation
 def classify_item(item, classifier, categories, translator):
@@ -61,7 +52,7 @@ def translate_text(text, target_lang='en'):
         'target': target_lang,  # Target language (English in this case)
         'alternatives': 3 # Optional: Return 3 alternative translations (default is 1)\
     }
-    
+
     # Set headers to indicate we're sending JSON data
     headers = {
         'Content-Type': 'application/json'
@@ -183,24 +174,14 @@ def classify():
     if not title:
         return jsonify({"error": "Title is missing"}), 400
     print(f"Original title recieved: {get_display(title)}")
-    # Check if the title is cached
-
-    # cached_result = cache.get(title)
-    # if cached_result:
-    #     print(f"Cache hit for: {title}")
-    #     # Increment hit count
-    #     cached_result['hit_count'] += 1
-    #     cache.set(title, cached_result)  # Update the cache with the new hit count
-    #     category = cached_result['category']
 
     # Check if the title exists in Firebase
     ref = db.reference(f"cache/{title}")
     cached_result = ref.get()
 
     if cached_result:
-        print(f"Cache hit for: {title}")
-        # Increment hit count
-        cached_result['hit_count'] += 1
+        print(f"Cache hit for: {get_display(title)}")
+        cached_result['hit_count'] += 1  # Increment hit count
         ref.set(cached_result)  # Update the cache with the new hit count
         category = cached_result['category']
     
@@ -213,23 +194,7 @@ def classify():
 
     return jsonify({"category": category})
 
- 
-# 
 if __name__ == "__main__":
     if not os.path.exists('/data/flask_cache'):
         os.makedirs('/data/flask_cache')
     app.run(debug=True)
-
-
-
-# # Classify each item and store results
-# for item in shopping_list_esp:
-#     category = classify_item(item, classifier, categories, translator)
-#     output[item] = category
-#     print(f"{get_display(item)} -> {category}")
-
-# # Convert the output to JSON format
-# output_json = json.dumps(output, indent=4)
-
-# # Return or print the JSON output
-# print(output_json)

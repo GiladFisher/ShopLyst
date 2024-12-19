@@ -15,10 +15,15 @@ import ListItem from "./ListItem";
             return [...prevItems, newItem];
         });
     }
+    const sortedItems = [...listItems].sort((a, b) => {
+        const categoryA = a.category.toLowerCase();
+        const categoryB = b.category.toLowerCase();
+        return categoryA.localeCompare(categoryB);
+    });
     return(<div>
         <h1>{props.user.name}'s List</h1>
         <CreateItem addItem={addItem} />
-        {listItems.map(item => <ListItem key={item.id} id={item.id}  item={item} deleteItem={deleteItem} />)}
+        {sortedItems.map(item => <ListItem key={item.id} id={item.id}  item={item} deleteItem={deleteItem} />)}
     </div>)
  }
 
